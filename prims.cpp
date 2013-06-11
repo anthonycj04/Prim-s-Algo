@@ -62,13 +62,16 @@ private:
 public:
 	void push(const Node& x){
 		if (nodes.find(x.name) == nodes.end()){
+			cout << "pushing" << endl;
 			priority_queue::push(x);
 			nodes.insert(x.name);
 		}
 	}
 
 	void pop(){
-		if (!priority_queue::empty()){
+		// if (!priority_queue::empty()){
+		if (!nodes.empty()){
+			cout << "popping" << endl;
 			nodes.erase(priority_queue::top().name);
 			// Node temp = priority_queue::top();
 			priority_queue::pop();
@@ -96,23 +99,29 @@ public:
 		}
 	}
 
-	void decreaseKey(char node, int newKey, int newPi){
+	void decreaseKey(char node, int newKey, char newPi){
+		cout << "decreaseKey(" << node << ", " << newKey << ", " << newPi << endl;
 		if (find(node)){
+			cout << "found" << endl;
 			PriorityQueue tempQueue;
 			while (top().name != node){
+				cout << "popping out" << endl;
 				tempQueue.push(top());
 				pop();
 			}
 			Node node = top();
+			cout << "orig: " << node.name << ", " << node.pi << ", " << node.key << endl;
 			pop();
 			node.key = newKey;
 			node.pi = newPi;
 			push(node);
 			while (!tempQueue.empty()){
+				cout << "pushing back" << endl;
 				push(tempQueue.top());
 				tempQueue.pop();
 			}
 		}
+		cout << "leaving" << endl;
 	}
 
 	Node extractMin(){
@@ -143,6 +152,7 @@ void prim(Graph graph, char startNode){
 	for (auto it = graph.getVertices().begin(); it != graph.getVertices().end(); it++)
 		tempString += *it;
 
+	cout << tempString << "!!!" << endl;
 	for (int i = 0; i < tempString.length(); i++){
 		node.name = tempString.c_str()[i];
 		priorityQueue.push(node);
@@ -175,13 +185,18 @@ void prim(Graph graph, char startNode){
 	priorityQueue.decreaseKey(startNode, 0, '\0');
 	while (!priorityQueue.empty()){
 		Node node = priorityQueue.extractMin();
+		cout << "extracted: " << node.name << ": " << node.key << ", " << node.pi << endl;
 		if (node.name != node.pi && node.pi != '\0')
-			cout << "(" << node.name << ", " << node.pi << ") ";
+			cout << "(" << node.name << ", " << node.pi << ") " << endl;
 		for (auto it = graph.getEdges().begin(); it != graph.getEdges().end(); it++){
+			cout << "checking " << it->first << endl;
 			if (it->first.c_str()[0] == node.name || it->first.c_str()[1] == node.name){// Adjacency
 				char adjacency = (it->first.c_str()[0] == node.name)?it->first.c_str()[1]:it->first.c_str()[0];
-				if (priorityQueue.find(adjacency) && priorityQueue.getNode(adjacency).key > graph.getWeight(node.name, adjacency))
+				cout << "going for adj" << adjacency << endl;
+				if (priorityQueue.find(adjacency) && priorityQueue.getNode(adjacency).key > graph.getWeight(node.name, adjacency)){
+					cout << "decreasingKey: " << adjacency << ", w: " << graph.getWeight(node.name, adjacency) << ", " << node.name << endl;
 					priorityQueue.decreaseKey(adjacency, graph.getWeight(node.name, adjacency), node.name);
+				}
 			}
 		}
 	}
@@ -191,38 +206,69 @@ void prim(Graph graph, char startNode){
 int main(){
 	cout << "Prim's algorithm for graph in lecture" << endl;
 	Graph G1;
-	G1.insertEdge('a', 'b', 10);
-	G1.insertEdge('a', 'c', 12);
-	G1.insertEdge('b', 'c', 9);
-	G1.insertEdge('b', 'd', 8);
-	G1.insertEdge('c', 'e', 3);
-	G1.insertEdge('c', 'f', 1);
-	G1.insertEdge('d', 'e', 7);
-	G1.insertEdge('d', 'g', 8);
-	G1.insertEdge('d', 'h', 5);
-	G1.insertEdge('e', 'f', 3);
-	G1.insertEdge('f', 'h', 6);
-	G1.insertEdge('g', 'h', 9);
-	G1.insertEdge('g', 'i', 2);
-	G1.insertEdge('h', 'i', 11);
+	G1.insertEdge('a','b',1);
+	G1.insertEdge('a','c',2);
+	G1.insertEdge('a','d',3);
+	G1.insertEdge('b','e',4);
+	G1.insertEdge('c','f',5);
+	G1.insertEdge('c','g',6);
+	G1.insertEdge('d','h',7);
+	G1.insertEdge('e','i',11);
+	G1.insertEdge('f','j',9);
+	G1.insertEdge('g','j',10);
+	G1.insertEdge('h','k',8);
+	G1.insertEdge('i','l',12);
+	G1.insertEdge('j','l',13);
+	G1.insertEdge('k','l',14);
+
+	// G1.insertEdge('a', 'b', 10);
+	// G1.insertEdge('a', 'c', 12);
+	// G1.insertEdge('b', 'c', 9);
+	// G1.insertEdge('b', 'd', 8);
+	// G1.insertEdge('c', 'e', 3);
+	// G1.insertEdge('c', 'f', 1);
+	// G1.insertEdge('d', 'e', 7);
+	// G1.insertEdge('d', 'g', 8);
+	// G1.insertEdge('d', 'h', 5);
+	// G1.insertEdge('e', 'f', 3);
+	// G1.insertEdge('f', 'h', 6);
+	// G1.insertEdge('g', 'h', 9);
+	// G1.insertEdge('g', 'i', 2);
+	// G1.insertEdge('h', 'i', 11);
 	prim(G1, 'a');
 
 	cout << "Prim's algorithm for graph in book" << endl;
 	Graph G2;
-	G2.insertEdge('a', 'b', 4);
-	G2.insertEdge('a', 'h', 8);
-	G2.insertEdge('b', 'c', 8);
-	G2.insertEdge('b', 'h', 11);
-	G2.insertEdge('c', 'd', 7);
-	G2.insertEdge('c', 'f', 4);
-	G2.insertEdge('c', 'i', 2);
-	G2.insertEdge('d', 'e', 9);
-	G2.insertEdge('d', 'f', 14);
-	G2.insertEdge('e', 'f', 10);
-	G2.insertEdge('f', 'g', 2);
-	G2.insertEdge('g', 'h', 1);
-	G2.insertEdge('g', 'i', 6);
-	G2.insertEdge('h', 'i', 7);
+	G2.insertEdge('a','b',2);
+	G2.insertEdge('a','c',3);
+	G2.insertEdge('a','d',4);
+	G2.insertEdge('b','c',4);
+	G2.insertEdge('b','e',5);
+	G2.insertEdge('b','i',11);
+	G2.insertEdge('c','d',5);
+	G2.insertEdge('c','e',1);
+	G2.insertEdge('c','f',7);
+	G2.insertEdge('d','f',6);
+	G2.insertEdge('d','g',11);
+	G2.insertEdge('e','f',8);
+	G2.insertEdge('e','h',9);
+	G2.insertEdge('f','g',9);
+	G2.insertEdge('i','k',10);
+
+	// G2.insertEdge('a', 'b', 4);
+	// G2.insertEdge('a', 'h', 8);
+	// G2.insertEdge('b', 'c', 8);
+	// G2.insertEdge('b', 'h', 11);
+	// G2.insertEdge('c', 'd', 7);
+	// G2.insertEdge('c', 'f', 4);
+	// G2.insertEdge('c', 'i', 2);
+	// G2.insertEdge('d', 'e', 9);
+	// G2.insertEdge('d', 'f', 14);
+	// G2.insertEdge('e', 'f', 10);
+	// G2.insertEdge('f', 'g', 2);
+	// G2.insertEdge('g', 'h', 1);
+	// G2.insertEdge('g', 'i', 6);
+	// G2.insertEdge('h', 'i', 7);
 	prim(G2, 'a');
 
 	return 0;
